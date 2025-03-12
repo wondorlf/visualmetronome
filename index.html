@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrónomo Visual</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.1s;
+            flex-direction: column;
+        }
+        #counter {
+            font-size: 16rem;
+            font-weight: bold;
+            color: white;
+        }
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: black;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+        }
+        button {
+            padding: 10px;
+            margin-top: 10px;
+            background: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        footer {
+            position: absolute;
+            bottom: 10px;
+            font-size: 1.2rem;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="counter">1</div>
+    <div id="controls">
+        <label>BPM: <span id="bpmValue">120</span></label><br>
+        <input type="range" id="bpm" min="40" max="240" value="120">
+        <br>
+        <label>Compás: <span id="measureValue">4</span></label><br>
+        <input type="range" id="measure" min="2" max="7" value="4">
+        <br>
+        <button id="startStop">Iniciar</button>
+    </div>
+    <footer>Academia EscalArte</footer>
+    <audio id="clickSound" src="clic.mp3"></audio>
+    <script>
+        let bpm = 120;
+        let measure = 4;
+        let count = 1;
+        let isRunning = false;
+        let interval;
+        const counter = document.getElementById("counter");
+        const bpmInput = document.getElementById("bpm");
+        const measureInput = document.getElementById("measure");
+        const startStopBtn = document.getElementById("startStop");
+        const clickSound = document.getElementById("clickSound");
+
+        bpmInput.addEventListener("input", (e) => {
+            bpm = parseInt(e.target.value);
+            document.getElementById("bpmValue").textContent = bpm;
+        });
+        measureInput.addEventListener("input", (e) => {
+            measure = parseInt(e.target.value);
+            document.getElementById("measureValue").textContent = measure;
+        });
+
+        function startMetronome() {
+            if (isRunning) {
+                clearInterval(interval);
+                startStopBtn.textContent = "Iniciar";
+            } else {
+                count = 1;
+                counter.textContent = count;
+                document.body.style.backgroundColor = "green";
+                interval = setInterval(() => {
+                    counter.textContent = count;
+                    document.body.style.backgroundColor = count % 2 === 0 ? "red" : "green";
+
+                    // Ajustar volumen del primer clic
+                    clickSound.volume = count === 1 ? 1.0 : 0.55;
+                    clickSound.currentTime = 0;
+                    clickSound.play();
+
+                    count = (count % measure) + 1;
+                }, (60 / bpm) * 1000);
+                startStopBtn.textContent = "Detener";
+            }
+            isRunning = !isRunning;
+        }
+
+        startStopBtn.addEventListener("click", startMetronome);
+    </script>
+</body>
+</html>
